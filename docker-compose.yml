@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:15
+    container_name: teacher-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: teacher_replacement_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d teacher_replacement_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: teacher-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data:ro
+      # Чтобы изменения кода применялись без пересборки образа:
+      - ./public:/app/public
+      - ./server.js:/app/server.js
+      - ./request-retention.js:/app/request-retention.js
+      - ./init_db.js:/app/init_db.js
+      - ./auth.js:/app/auth.js
+      - ./mail.js:/app/mail.js
+      - ./request-emails.js:/app/request-emails.js
+      - ./schedule-import.js:/app/schedule-import.js
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: teacher_replacement_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: change_me_in_production_use_long_random_string
+      ADMIN_PASSWORD: admin123
+      TEACHER_PASSWORD: teacher123
+      ALLOWED_ORIGIN: http://localhost:3000
+      APP_URL: http://localhost:3000
+      EMAIL_ENABLED: "false"
+      REQUEST_RETENTION_MONTHS: "6"
+      # SMTP_HOST: sandbox.smtp.mailtrap.io
+      # SMTP_PORT: 2525
+      # SMTP_USER: ...
+      # SMTP_PASS: ...
+      # MAIL_FROM: "Замена преподавателей <noreply@university.ru>"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

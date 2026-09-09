@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Система замены преподавателей</title>
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Стили для dashboard (оставляем все ваши стили без изменений) */
+        .dashboard-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left h1 {
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #4a5568;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #3498db;
+        }
+        
+        .user-role {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-content {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Навигация dashboard */
+        .dashboard-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #f8fafc;
+            border-color: #3498db;
+            color: #3498db;
+        }
+        
+        .nav-btn.active {
+            background: #3498db;
+            border-color: #3498db;
+            color: white;
+        }
+        
+        /* Секции контента */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .section-header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .section-header h3 {
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+        }
+        
+        .section-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        /* Навигация по датам */
+        .date-navigation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .date-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .current-date {
+            min-width: 150px;
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        
+        /* Расписание */
+        .schedule-view {
+            background: white;
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .loading-schedule {
+            padding: 60px 20px;
+            text-align: center;
+            color: #718096;
+        }
+        
+        .loading-schedule i {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+        
+        /* Элемент расписания на день */
+        .schedule-item {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: background 0.3s;
+        }
+        
+        .schedule-item:hover {
+            background: #f8fafc;
+        }
+        
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+        
+        .schedule-item.replacement {
+            background: #fff8e1;
+            border-left: 4px solid #ffb300;
+        }
+        
+        .schedule-time {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .schedule-time .class-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .schedule-details {
+            flex: 1;
+            margin-left: 20px;
+        }
+        
+        .schedule-subject {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .schedule-meta {
+            display: flex;
+            gap: 20px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .schedule-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .schedule-actions {
+            margin-left: 20px;
+        }
+        
+        .request-replacement-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .request-replacement-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .request-replacement-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Контейнеры для разделов */
+        .requests-container,
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
+        }
+
+        .requests-container {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .requests-container .card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Пустые состояния */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: #718096;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #cbd5e0;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        /* Анимация появления */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .teacher-only.hidden,
+        .admin-only.hidden {
+            display: none !important;
+        }
+
+        .admin-filters {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-filters-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            align-items: end;
+        }
+
+        .admin-filters-form label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .admin-filters-form input,
+        .admin-filters-form select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .admin-filters-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .admin-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 18px;
+            border-left: 5px solid #3498db;
+        }
+
+        .admin-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .admin-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .admin-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+
+        .admin-card-row {
+            color: #334155;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .admin-phone {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 10px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .admin-phone:hover {
+            text-decoration: underline;
+        }
+
+        .admin-comment {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #6366f1;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .admin-card-footer {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .admin-filters-note {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0 0 12px;
+            line-height: 1.4;
+        }
+
+        .admin-filters-hint {
+            font-size: 13px;
+            color: #475569;
+            margin: 0 0 12px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .admin-count {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .admin-nav-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.5rem;
+            padding: 2px 8px;
+            margin-left: 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .nav-btn.active .admin-nav-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        .admin-tabs-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 24px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 14px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .admin-card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .admin-btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .admin-btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .admin-btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .admin-btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-modal-overlay.open {
+            display: flex;
+        }
+
+        .admin-modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .admin-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 20px 20px 0;
+        }
+
+        .admin-modal-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 20px;
+        }
+
+        .admin-modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .admin-modal-body {
+            padding: 16px 20px 20px;
+        }
+
+        .admin-modal-row {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .admin-modal-row strong {
+            color: #64748b;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 140px;
+        }
+
+        .admin-confirm-select {
+            width: 100%;
+            max-width: 320px;
+            margin-top: 6px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .admin-pending-actions {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .admin-modal-footer {
+            padding: 0 20px 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .dashboard-content {
+                padding: 20px;
+            }
+            
+            .dashboard-nav {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .section-controls {
+                width: 100%;
+            }
+            
+            .date-navigation {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .schedule-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .schedule-details {
+                margin-left: 0;
+            }
+            
+            .schedule-actions {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .request-replacement-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Шапка -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1><i class="fas fa-chalkboard-teacher"></i> Система замены преподавателей</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Загрузка...</span>
+                    <span class="user-role" id="userRole">...</span>
+                </div>
+            </div>
+            <button id="logoutBtn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Выйти
+            </button>
+        </header>
+
+        <!-- Основной контент -->
+        <main class="dashboard-content">
+            <!-- Приветствие -->
+            <section class="welcome-section fade-in">
+                <h2><i class="fas fa-hand-wave"></i> Добро пожаловать!</h2>
+                <p id="welcomeText">Вы успешно вошли в систему замены преподавателей</p>
+            </section>
+
+            <!-- Выбор преподавателя (только для администратора) -->
+            <div class="admin-teacher-bar admin-only hidden fade-in" id="adminTeacherBar" style="display:none;margin-bottom:20px;background:white;border-radius:10px;padding:16px 20px;box-shadow:0 2px 10px rgba(0,0,0,0.08);">
+                <label for="adminActingTeacherSelect" style="display:block;font-weight:600;color:#334155;margin-bottom:8px;">
+                    <i class="fas fa-user-tie" style="margin-right:8px;color:#4f46e5;"></i>
+                    Преподаватель (от чьего имени работаете)
+                </label>
+                <select id="adminActingTeacherSelect" style="width:100%;max-width:480px;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;">
+                    <option value="">— Выберите преподавателя —</option>
+                </select>
+                <div style="font-size:13px;color:#64748b;margin-top:8px;">
+                    Выберите преподавателя, чтобы просматривать его расписание и создавать заявки от его имени.
+                </div>
+            </div>
+
+            <!-- Навигация преподавателя -->
+            <div class="dashboard-nav fade-in teacher-only" id="teacherNav">
+                <button class="nav-btn active" data-section="schedule">
+                    <i class="fas fa-calendar-alt"></i> Расписание
+                </button>
+                <button class="nav-btn" data-section="requests">
+                    <i class="fas fa-exchange-alt"></i> Мои заявки
+                </button>
+                <button class="nav-btn" data-section="new-request">
+                    <i class="fas fa-plus-circle"></i> Новая заявка
+                </button>
+            </div>
+
+            <!-- Навигация администратора -->
+            <div class="dashboard-nav fade-in admin-only hidden" id="adminNav">
+                <button class="nav-btn active" data-section="admin-requests">
+                    <i class="fas fa-list-alt"></i> Все заявки
+                    <span class="admin-nav-badge" id="adminNavRequestsCount"></span>
+                </button>
+                <button class="nav-btn" data-section="admin-history">
+                    <i class="fas fa-history"></i> История замен
+                    <span class="admin-nav-badge" id="adminNavHistoryCount"></span>
+                </button>
+                <button class="nav-btn" data-section="admin-archive">
+                    <i class="fas fa-archive"></i> Архив
+                    <span class="admin-nav-badge" id="adminNavArchiveCount"></span>
+                </button>
+            </div>
+
+            <!-- Фильтры администратора -->
+            <div class="admin-filters admin-only hidden" id="adminFiltersPanel">
+                <p class="admin-filters-note">Фильтры действуют на все вкладки. Подтверждённые заявки старше 6 месяцев переносятся в «Архив»; отменённые старше 6 месяцев удаляются автоматически. Остальные отменённые можно удалить вручную.</p>
+                <form id="adminFiltersForm" class="admin-filters-form">
+                    <div>
+                        <label for="filterStatus">Статус</label>
+                        <select id="filterStatus" name="status">
+                            <option value="">Все</option>
+                            <option value="pending">На рассмотрении</option>
+                            <option value="confirmed">Подтверждена</option>
+                            <option value="rejected">Отклонена</option>
+                            <option value="cancelled">Отменена</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterFrom">Дата с</label>
+                        <input type="date" id="filterFrom" name="from">
+                    </div>
+                    <div>
+                        <label for="filterTo">Дата по</label>
+                        <input type="date" id="filterTo" name="to">
+                    </div>
+                    <div>
+                        <label for="filterTeacher">Преподаватель</label>
+                        <input type="text" id="filterTeacher" name="teacher" placeholder="Например: Милехина" autocomplete="off">
+                    </div>
+                    <div class="admin-filters-actions">
+                        <button type="submit" class="nav-btn" style="background:#3498db;color:white;border-color:#3498db;">
+                            <i class="fas fa-filter"></i> Применить
+                        </button>
+                        <button type="button" class="nav-btn" id="adminFiltersReset">
+                            <i class="fas fa-eraser"></i> Сбросить
+                        </button>
+                    </div>
+                </form>
+                <div class="admin-tabs-summary" id="adminTabsSummary" aria-live="polite">
+                    <span id="adminSummaryRequests">Все заявки: —</span>
+                    <span id="adminSummaryHistory">История замен: —</span>
+                    <span id="adminSummaryArchive">Архив: —</span>
+                </div>
+            </div>
+
+            <!-- Секция расписания (по умолчанию активна) -->
+            <section id="schedule-section" class="content-section active teacher-only">
+                <div class="section-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Расписание</h3>
+                    <div class="section-controls schedule-section-controls">
+                        <div class="view-toggle" id="scheduleViewToggle">
+                            <button type="button" class="view-btn active" data-view="day">День</button>
+                            <button type="button" class="view-btn" data-view="week">Неделя</button>
+                        </div>
+                        <div class="date-navigation" id="dayNavControls">
+                            <button type="button" class="date-btn" id="prevDateBtn">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="current-date" id="currentDate">
+                                <!-- Дата будет вставлена динамически -->
+                            </div>
+                            <button class="date-btn" id="nextDateBtn">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button type="button" class="date-btn" id="todayBtn">
+                                <i class="fas fa-calendar-day"></i> Сегодня
+                            </button>
+                        </div>
+                        <div class="date-navigation" id="weekNavControls" style="display: none;">
+                            <button type="button" class="date-btn" id="prevWeekBtn" title="Предыдущая неделя">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="current-date current-week-range" id="currentWeekRange"></div>
+                            <button type="button" class="date-btn" id="nextWeekBtn" title="Следующая неделя">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button type="button" class="date-btn" id="todayWeekBtn">
+                                <i class="fas fa-calendar-day"></i> Сегодня
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Расписание на день -->
+                <div id="day-schedule" class="schedule-view">
+                    <div class="schedule-container" id="dayScheduleContainer">
+                        <div class="loading-schedule">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загрузка расписания...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="week-schedule" class="schedule-view" style="display: none;">
+                    <div id="weekScheduleContainer" class="week-schedule-container">
+                        <div class="loading-schedule">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загрузка расписания...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция заявок -->
+            <section id="requests-section" class="content-section teacher-only" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-exchange-alt"></i> Мои заявки</h3>
+                </div>
+                <div class="requests-container" id="requestsContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>У вас пока нет заявок на замену</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Секция новой заявки (исправленная) -->
+            <section id="new-request-section" class="content-section teacher-only" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-plus-circle"></i> Новая заявка</h3>
+                </div>
+                <div class="form-container" id="newRequestFormContainer">
+                    <div class="loading-schedule">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка формы...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-requests-section" class="content-section admin-only hidden" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-list-alt"></i> Все заявки</h3>
+                    <span class="admin-count" id="adminRequestsCount"></span>
+                </div>
+                <p class="admin-filters-hint" id="adminRequestsFiltersHint" style="display:none;"></p>
+                <div class="requests-container admin-list" id="adminRequestsContainer">
+                    <div class="loading-schedule">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка заявок...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-history-section" class="content-section admin-only hidden" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> История замен</h3>
+                    <span class="admin-count" id="adminHistoryCount"></span>
+                </div>
+                <p class="admin-filters-hint" id="adminHistoryFiltersHint" style="display:none;"></p>
+                <div class="requests-container admin-list" id="adminHistoryContainer">
+                    <div class="loading-schedule">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка истории...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="admin-archive-section" class="content-section admin-only hidden" style="display: none;">
+                <div class="section-header">
+                    <h3><i class="fas fa-archive"></i> Архив заявок</h3>
+                    <span class="admin-count" id="adminArchiveCount"></span>
+                </div>
+                <p class="admin-filters-hint" id="adminArchiveFiltersHint" style="display:none;"></p>
+                <p class="admin-filters-note" style="margin-bottom: 12px;">Подтверждённые заявки старше 6 месяцев. Только просмотр.</p>
+                <div class="requests-container admin-list" id="adminArchiveContainer">
+                    <div class="loading-schedule">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Загрузка архива...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="adminModal" class="admin-modal-overlay admin-only hidden" aria-hidden="true">
+        <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+            <div class="admin-modal-header">
+                <h3 id="adminModalTitle">Детали заявки</h3>
+                <button type="button" class="admin-modal-close" id="adminModalClose" aria-label="Закрыть">&times;</button>
+            </div>
+            <div class="admin-modal-body" id="adminModalBody"></div>
+            <div class="admin-modal-footer" id="adminModalFooter"></div>
+        </div>
+    </div>
+
+    <!-- Подключение JavaScript файлов -->
+    <script src="auth.js?v=20260530b"></script>
+    <script src="dashboard.js?v=20260908a"></script>
+    <script src="schedule.js?v=20260908a"></script>
+    <script src="requests.js?v=20260530b"></script>
+    <script src="new-request.js?v=20260908a"></script>
+    <script src="admin.js?v=20260531c"></script>
+
+    <script>
+        // Глобальные стили для анимаций
+        if (!document.getElementById('dashboard-styles')) {
+            const style = document.createElement('style');
+            style.id = 'dashboard-styles';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-in { animation: fadeIn 0.5s ease-out; }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Простая проверка загрузки файлов
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Dashboard.html загружен');
+            
+            // Проверяем, что все необходимые файлы загружены
+            const requiredFiles = ['dashboard.js', 'schedule.js', 'new-request.js'];
+            requiredFiles.forEach(file => {
+                console.log(`${file}: ${typeof window[file.split('.')[0]] !== 'undefined' ? '✅ Загружен' : '❌ Не загружен'}`);
+            });
+        });
+    </script>
+</body>
+</html>
