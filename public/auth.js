@@ -11,7 +11,7 @@ class AuthSystem {
         try {
             console.log('Попытка входа для:', email);
             
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${window.BASE_PATH || ''}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ class AuthSystem {
         }
 
         try {
-            const response = await fetch('/api/profile', {
+            const response = await fetch(`${window.BASE_PATH || ''}/api/profile` {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -132,7 +132,7 @@ class AuthSystem {
         this.user = null;
         
         // Немедленно перенаправляем на главную
-        window.location.href = '/';
+        window.location.href = `${window.BASE_PATH || ''}/`;
     }
 }
 
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const valid = await window.auth.validateSession();
         if (valid) {
             console.log('Уже авторизован, перенаправляем на dashboard');
-            window.location.href = '/dashboard';
+            window.location.href = `${window.BASE_PATH || ''}/dashboard`;
             return;
         }
     }
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 
                 // Небольшая задержка для UX
                 setTimeout(() => {
-                    window.location.href = '/dashboard';
+                    window.location.href = `${window.BASE_PATH || ''}/dashboard`;
                 }, 500);
                 
             } else {
