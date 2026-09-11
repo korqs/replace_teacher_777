@@ -102,7 +102,7 @@ class AuthSystem {
         }
 
         try {
-            const response = await fetch(`${window.BASE_PATH || ''}/api/profile` {
+            const response = await fetch(`${window.BASE_PATH || ''}/api/profile`) {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
