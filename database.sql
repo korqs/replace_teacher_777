@@ -164,12 +164,6 @@ INSERT INTO api.users (email, password_hash, role, teacher_name) VALUES ('trishi
 
 -- Расписание загружается из data/schedule.csv (npm run import-schedule)
 -- Компетенция рассчитывается в competency.js по данным timetable
-
--- Заявки
-INSERT INTO replacement_requests (teacher_name, request_date, week_num, num_den, classes, subject, team, status, replacing_teacher) VALUES ('Милехина', '2026-04-27', 17, 'num', 2, 'Математический анализ', 'ФН11-33Б', 'pending', NULL);
-INSERT INTO replacement_requests (teacher_name, request_date, week_num, num_den, classes, subject, team, status, replacing_teacher) VALUES ('Милехина', '2026-04-29', 17, 'num', 2, 'Математический анализ', 'ФН11-33Б', 'pending', NULL);
-INSERT INTO replacement_requests (teacher_name, request_date, week_num, num_den, classes, subject, team, status, replacing_teacher) VALUES ('Зубарев', '2026-05-07', 18, 'den', 4, 'Программирование', 'ФН11-33Б', 'confirmed', 'Щетинин');
-
 -- Индексы
 CREATE INDEX idx_timetable_teacher ON timetable(teacher);
 CREATE INDEX idx_timetable_date ON timetable(date);
