@@ -102,9 +102,9 @@ class AuthSystem {
         }
 
         try {
-            const response = await fetch(`${window.BASE_PATH || ''}/api/profile`) {
+            const response = await fetch(`${window.BASE_PATH || ''}/api/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
-            });
+        });
 
             if (response.status === 401) {
                 this.clearStoredAuth('Сессия истекла. Войдите снова.');
