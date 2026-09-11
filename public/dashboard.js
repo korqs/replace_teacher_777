@@ -16,7 +16,7 @@ class DashboardApp {
             'auth_message',
             message || 'Сессия истекла. Войдите снова.'
         );
-        window.location.href = '/';
+        window.location.href = `${window.BASE_PATH || ''}/`;
     }
 
     async init() {
@@ -24,7 +24,7 @@ class DashboardApp {
         
         // Проверка авторизации
         if (!this.token || !this.user) {
-            window.location.href = '/';
+            window.location.href = `${window.BASE_PATH || ''}/`;
             return;
         }
 
@@ -345,7 +345,10 @@ class DashboardApp {
         };
         
         try {
-            const fullUrl = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+             const basePath = window.BASE_PATH || '';
+                const fullUrl = endpoint.startsWith('/api') 
+                ? `${basePath}${endpoint}` 
+                : `${basePath}/api${endpoint}`;
             
             console.log(`🌐 Полный URL: ${fullUrl}`);
             
@@ -426,7 +429,7 @@ class DashboardApp {
         if (confirm('Вы уверены, что хотите выйти?')) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/';
+            window.location.href = `${window.BASE_PATH || ''}/`;
         }
     }
     
