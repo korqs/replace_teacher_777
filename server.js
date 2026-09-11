@@ -289,7 +289,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
 }));
 
-
+// Отдаём frontend конфиг с BASE_PATH
+app.get('/config.js', (req, res) => {
+    res.type('application/javascript');
+    res.send(`window.BASE_PATH = '${process.env.BASE_PATH || ''}';`);
+});
 
 
 // API МАРШРУТЫ
